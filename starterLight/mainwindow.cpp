@@ -389,9 +389,13 @@ void MainWindow::on_pushButton_couper_clicked()
     //MyMesh::Point P2 = mesh.point(mesh.vertex_handle(3));
     //MyMesh::Point P3 = mesh.point(mesh.vertex_handle(mesh.n_vertices()));
 
-    MyMesh::Point P1 = MyMesh::Point(0,0,0);
+    /*MyMesh::Point P1 = MyMesh::Point(0,0,0);
     MyMesh::Point P2 = MyMesh::Point(3,0,0);
-    MyMesh::Point P3 = MyMesh::Point(0,3,0);
+    MyMesh::Point P3 = MyMesh::Point(0,3,0);*/
+
+    MyMesh::Point P1 = MyMesh::Point(ui->displayWidget->center_[0],ui->displayWidget->center_[1],ui->displayWidget->center_[2]);
+    MyMesh::Point P2 = MyMesh::Point(ui->displayWidget->first_point_to_cut3D[0],ui->displayWidget->first_point_to_cut3D[1],ui->displayWidget->first_point_to_cut3D[2]);
+    MyMesh::Point P3 = MyMesh::Point(ui->displayWidget->last_point_to_cut3D[0],ui->displayWidget->last_point_to_cut3D[1],ui->displayWidget->last_point_to_cut3D[2]);
 
     MyMesh frag1 = cut(&mesh,P1,P2,P3)[0];
     MyMesh frag2 = cut(&mesh,P1,P2,P3)[1];

@@ -280,6 +280,12 @@ void MeshViewerWidget::view_all()
 void MeshViewerWidget::mousePressEvent( QMouseEvent* _event )
 {
     last_point_ok_ = map_to_sphere( last_point_2D_=_event->pos(), last_point_3D_ );
+    if(_event->buttons() == Qt::RightButton)
+    {
+        first_point_to_cut3D = last_point_3D_;
+        qDebug() << first_point_to_cut3D[0] << first_point_to_cut3D[1] << first_point_to_cut3D[2];
+
+    }
 }
 
 void MeshViewerWidget::mouseMoveEvent( QMouseEvent* _event )
@@ -333,15 +339,31 @@ void MeshViewerWidget::mouseMoveEvent( QMouseEvent* _event )
         }
 
     }
+    /*else if(_event->buttons() == Qt::RightButton)
+    {
+        if (last_point_ok_)
+        {
+            map_to_sphere( newPoint2D, newPoint3D );
+            qDebug() << newPoint2D.rx() << newPoint2D.ry();
+            qDebug() << newPoint3D[0] << newPoint3D[1] << newPoint3D[2];
+            qDebug() << "-----------------------------------------------";
+
+
+        }
+    }*/
     last_point_2D_ = newPoint2D;
     last_point_3D_ = newPoint3D;
     last_point_ok_ = newPoint_hitSphere;
     updateGL();
 }
 
-void MeshViewerWidget::mouseReleaseEvent( QMouseEvent* /* _event */ )
+void MeshViewerWidget::mouseReleaseEvent( QMouseEvent* _event  )
 {
+    last_point_ok_ = map_to_sphere( last_point_2D_=_event->pos(), last_point_to_cut3D );
+    qDebug() << last_point_to_cut3D[0] << last_point_to_cut3D[1] << last_point_to_cut3D[2];
+
     last_point_ok_ = false;
+
 }
 
 void MeshViewerWidget::wheelEvent(QWheelEvent* _event)
