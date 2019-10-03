@@ -151,23 +151,23 @@ MyMesh * MainWindow::cut(MyMesh * _mesh, MyMesh::Point P1, MyMesh::Point P2, MyM
 {
     MyMesh frag1;
     MyMesh frag2;
-    MyMesh::VertexHandle vh1 = _mesh->add_vertex(P1);
+    /*MyMesh::VertexHandle vh1 = _mesh->add_vertex(P1);
     MyMesh::VertexHandle vh2 = _mesh->add_vertex(P2);
-    MyMesh::VertexHandle vh3 = _mesh->add_vertex(P3);
+    MyMesh::VertexHandle vh3 = _mesh->add_vertex(P3);*/
 
     float * eq_plane = equation_plane(P1,P2,P3);
     /*for(MyMesh::VertexIter vi;vi!=_mesh->vertices_end(); vi++)
     {
 
     }*/
-    frag1.add_vertex(P1);
+    /*frag1.add_vertex(P1);
     frag1.add_vertex(P2);
     frag1.add_vertex(P3);
 
     frag2.add_vertex(P1);
     frag2.add_vertex(P2);
     frag2.add_vertex(P3);
-
+    */
 
     for(int i=0;i < _mesh->n_vertices();i++)
     {
@@ -392,8 +392,10 @@ void MainWindow::on_pushButton_couper_clicked()
     MyMesh::Point P1 = MyMesh::Point(0,0,0);
     MyMesh::Point P2 = MyMesh::Point(3,0,0);
     MyMesh::Point P3 = MyMesh::Point(0,3,0);
+
     MyMesh frag1 = cut(&mesh,P1,P2,P3)[0];
     MyMesh frag2 = cut(&mesh,P1,P2,P3)[1];
+    MyMesh cpy = mesh;
     mesh.clean();
     for(MyMesh::VertexIter ve = frag1.vertices_begin(); ve != frag1.vertices_end(); ve++)
     {
@@ -407,7 +409,152 @@ void MainWindow::on_pushButton_couper_clicked()
         mesh.set_color(mesh.vertex_handle(vh.idx()), MyMesh::Color(255, 0, 0));
         mesh.data(mesh.vertex_handle(vh.idx())).thickness = 2;
     }
+    for(MyMesh::FaceIter f = cpy.faces_begin();f!=cpy.faces_end();f++)
+    {
+
+        if(true)
+        {
+        std::vector<MyMesh::VertexHandle> uneNouvelleFace;
+        std::vector<MyMesh::Point> face_points;
+        for(MyMesh::FaceVertexIter fv = cpy.fv_begin(*f); fv.is_valid(); fv++)
+        {
+            //uneNouvelleFace.push_back(cpy.vertex_handle(fv->idx()));
+            face_points.push_back(cpy.point(cpy.vertex_handle(fv->idx())));
+        }
+        //qDebug()<<face_points.size();
+
+        uneNouvelleFace.push_back(cpy.vertex_handle(0));
+        uneNouvelleFace.push_back(cpy.vertex_handle(0));
+        uneNouvelleFace.push_back(cpy.vertex_handle(0));
+        for (MyMesh::VertexIter v = mesh.vertices_begin(); v!=mesh.vertices_end();v++)
+        {
+            MyMesh::Point P =  mesh.point(mesh.vertex_handle(v->idx()));
+            if(face_points.at(0) == P)
+            {
+                //uneNouvelleFace.push_back(mesh.vertex_handle(v->idx()));
+                uneNouvelleFace.at(0) = mesh.vertex_handle(v->idx());
+            }//verifier point de cpy est dans mesh
+            if(face_points.at(1) == P)
+            {
+                //uneNouvelleFace.push_back(mesh.vertex_handle(v->idx()));
+                uneNouvelleFace.at(1) = mesh.vertex_handle(v->idx());
+            }//verifier point de cpy est dans mesh
+            if(face_points.at(2) == P)
+            {
+                //uneNouvelleFace.push_back(mesh.vertex_handle(v->idx()));
+                uneNouvelleFace.at(2) = mesh.vertex_handle(v->idx());
+            }//verifier point de cpy est dans mesh
+        }
+        //qDebug()<<uneNouvelleFace.size();
+        //mesh.add_face(uneNouvelleFace);
+        if(mesh.is_valid_handle(mesh.add_face(uneNouvelleFace))) //123
+        {
+
+        }
+        else
+        {
+            MyMesh::VertexHandle vh = uneNouvelleFace.at(0);
+            uneNouvelleFace.at(0) = uneNouvelleFace.at(2);
+            uneNouvelleFace.at(2) = vh;
+            //mesh.add_face(uneNouvelleFace);
+            if(mesh.is_valid_handle(mesh.add_face(uneNouvelleFace)))//321
+            {
+
+            }
+            else
+            {
+                vh = uneNouvelleFace.at(0);
+                uneNouvelleFace.at(0) = uneNouvelleFace.at(1);
+                uneNouvelleFace.at(1) = vh;
+                //mesh.add_face(uneNouvelleFace);
+                if(mesh.is_valid_handle(mesh.add_face(uneNouvelleFace)))//231
+                {
+
+                }
+                else
+                {
+                    vh = uneNouvelleFace.at(1);
+                    uneNouvelleFace.at(1) = uneNouvelleFace.at(2);
+                    uneNouvelleFace.at(2) = vh;
+                    if(mesh.is_valid_handle(mesh.add_face(uneNouvelleFace)))//213
+                    {
+
+                    }
+                    else
+                    {
+                        vh = uneNouvelleFace.at(0);
+                        uneNouvelleFace.at(0) = uneNouvelleFace.at(2);
+                        uneNouvelleFace.at(2) = vh;
+                        if(mesh.is_valid_handle(mesh.add_face(uneNouvelleFace)))//312
+                        {
+
+                        }
+                        else
+                        {
+                            vh = uneNouvelleFace.at(1);
+                            uneNouvelleFace.at(1) = uneNouvelleFace.at(0);
+                            uneNouvelleFace.at(0) = vh;
+
+                            if(mesh.is_valid_handle(mesh.add_face(uneNouvelleFace)))//132
+                            {
+
+                            }
+                            else
+                            {
+                                vh = uneNouvelleFace.at(2);
+                                uneNouvelleFace.at(2) = uneNouvelleFace.at(1);
+                                uneNouvelleFace.at(1) = vh;
+                                mesh.add_face(uneNouvelleFace);
+                            }
+
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+        face_points.clear();
+        uneNouvelleFace.clear();
+        }
+    }
+
+    /*for(MyMesh::VertexIter v = frag1.vertices_begin(); v!=frag1.vertices_end();v++)
+    {
+        MyMesh::Point pf1 = frag1.point(frag1.vertex_handle(v->idx()));
+        for(MyMesh::VertexIter v2 = frag2.vertices_begin(); v2!=frag2.vertices_end();v2++)
+        {
+            MyMesh::Point pf2 = frag2.point(frag2.vertex_handle(v2->idx()));
+            if(pf1 == pf2)
+            {
+                for (MyMesh::VertexIter vm = cpy.vertices_begin(); vm!=cpy.vertices_end();vm++)
+                {
+                    MyMesh::Point pfm = cpy.point(cpy.vertex_handle(vm->idx()));
+                    if(pfm == pf1)
+                    {
+                        cpy.delete_vertex(cpy.vertex_handle(vm->idx()));
+                    }
+                }
+            }
+        }
+    }*/
+
+    /*std::vector<MyMesh::VertexHandle> uneNouvelleFace;
+    int i=1;
+    for(MyMesh::VertexIter ve = frag1.vertices_begin(); ve != frag1.vertices_end(); ve++)
+    {
+        uneNouvelleFace.push_back(mesh.vertex_handle(ve->idx()));
+        i++;
+        if(i%4 == 0)
+        {
+            i=1;
+            qDebug()<<uneNouvelleFace.size();
+            mesh.add_face(uneNouvelleFace);
+            uneNouvelleFace.clear();
+        }
+    }*/
+
 
     displayMesh(&mesh);
-
 }
