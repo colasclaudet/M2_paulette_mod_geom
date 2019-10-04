@@ -75,6 +75,10 @@ public:
     QPoint           last_point_2D_;
     OpenMesh::Vec3f  last_point_3D_;
     bool             last_point_ok_;
+
+    OpenMesh::Vec3f  user_position;
+    OpenMesh::Vec3f  first_point_to_cut3D;
+    OpenMesh::Vec3f  last_point_to_cut3D;
 protected:
 
     // Qt mouse events

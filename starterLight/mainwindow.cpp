@@ -382,6 +382,37 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::showBorder(MyMesh* _mesh) //<affiche bordure> met plusieurs seconde à s'executer
+{
+    resetAllColorsAndThickness(_mesh);
+
+    int count = 0;
+    for(MyMesh::EdgeIter currentEdge = _mesh->edges_begin(); currentEdge != _mesh->edges_end(); currentEdge ++)
+    {
+        EdgeHandle e = *currentEdge;
+        //_mesh->set_color(e, MyMesh::Color(0,255,0));*/
+        //On parcourt toutes les faces du mesh
+        for(MyMesh::FaceIter f = _mesh->faces_begin(); f != _mesh->faces_end(); f++)
+        {
+            //On parcourt toutes les aretes sur chacune des faces
+            for(MyMesh::FaceEdgeIter current_edgeFace = _mesh->fe_iter(f); current_edgeFace.is_valid(); current_edgeFace ++)
+            {
+                EdgeHandle ce = *current_edgeFace;
+                if(e == ce) //si notre arrête selectionné égale à l'arrete courante de l'une des faces
+                    count ++;
+            }
+
+        }
+        if(count == 1)
+        {
+            _mesh->set_color(e, MyMesh::Color(200,0,170));
+            _mesh->data(e).thickness = 6;
+        }
+        count = 0;
+    }
+    // on affiche le nouveau maillage
+    displayMesh(_mesh);
+}
 
 void MainWindow::on_pushButton_couper_clicked()
 {
@@ -389,14 +420,124 @@ void MainWindow::on_pushButton_couper_clicked()
     //MyMesh::Point P2 = mesh.point(mesh.vertex_handle(3));
     //MyMesh::Point P3 = mesh.point(mesh.vertex_handle(mesh.n_vertices()));
 
-    MyMesh::Point P1 = MyMesh::Point(0,0,0);
+    /*MyMesh::Point P1 = MyMesh::Point(0,0,0);
     MyMesh::Point P2 = MyMesh::Point(3,0,0);
-    MyMesh::Point P3 = MyMesh::Point(0,3,0);
+    MyMesh::Point P3 = MyMesh::Point(0,3,0);*/
 
-    MyMesh frag1 = cut(&mesh,P1,P2,P3)[0];
-    MyMesh frag2 = cut(&mesh,P1,P2,P3)[1];
+    MyMesh::Point P1 = MyMesh::Point(ui->displayWidget->user_position[0],ui->displayWidget->user_position[1],ui->displayWidget->user_position[2]);
+    MyMesh::Point P2 = MyMesh::Point(ui->displayWidget->first_point_to_cut3D[0],ui->displayWidget->first_point_to_cut3D[1],ui->displayWidget->first_point_to_cut3D[2]);
+    MyMesh::Point P3 = MyMesh::Point(ui->displayWidget->last_point_to_cut3D[0],ui->displayWidget->last_point_to_cut3D[1],ui->displayWidget->last_point_to_cut3D[2]);
+
+    //MyMesh frag1 = cut(&mesh,P1,P2,P3)[0];
+    //MyMesh frag2 = cut(&mesh,P1,P2,P3)[1];
+    //MyMesh cpy = mesh;
     MyMesh cpy = mesh;
-    mesh.clean();
+
+
+
+    //MyMesh cpy = mesh;
+    float * eq_plane = equation_plane(P1,P2,P3);
+
+
+    for(MyMesh::FaceIter f = mesh.faces_begin(); f != mesh.faces_end(); f++)
+    {
+
+        QVector<MyMesh::Point> facePoints;
+        for(MyMesh::FaceVertexIter fv = mesh.fv_begin(*f);fv.is_valid();fv++)
+        {
+            facePoints.push_back(mesh.point(*fv));
+        }
+        float x = (facePoints.at(0)[0]+facePoints.at(1)[0]+facePoints.at(2)[0])/3;
+        float y = (facePoints.at(0)[1]+facePoints.at(1)[1]+facePoints.at(2)[1])/3;
+        float z = (facePoints.at(0)[2]+facePoints.at(1)[2]+facePoints.at(2)[2])/3;
+
+        //MyMesh::Point PM = mesh.point(mesh.vertex_handle(vem->idx()));
+        if((x*eq_plane[0]+y*eq_plane[1]+z*eq_plane[2]+eq_plane[3]) < 0.0)
+        {
+            /*for(MyMesh::VertexFaceIter vf = mesh.vf_begin(*vem);vf.is_valid();vf ++)
+            {
+                mesh.delete_face(mesh.face_handle(vf->idx()),false);
+            }*/
+
+            /*for(MyMesh::FaceEdgeIter fe = mesh.fe_begin(*f);fe->is_valid();fe++)
+            {
+
+                mesh.delete_edge(*fe,false);
+            }*/
+
+            mesh.delete_face(*f,true);
+
+            /*for(MyMesh::FaceVertexIter fv = mesh.fv_begin(*f);fv->is_valid();fv++)
+            {
+                mesh.delete_vertex(*fv,false);
+            }*/
+        }
+
+
+
+    }
+    mesh.garbage_collection();
+    for(MyMesh::FaceIter f = cpy.faces_begin(); f != cpy.faces_end(); f++)
+    {
+        QVector<MyMesh::Point> facePoints;
+        for(MyMesh::FaceVertexIter fv = cpy.fv_begin(*f);fv.is_valid();fv++)
+        {
+            facePoints.push_back(cpy.point(*fv));
+        }
+        float x = (facePoints.at(0)[0]+facePoints.at(1)[0]+facePoints.at(2)[0])/3;
+        float y = (facePoints.at(0)[1]+facePoints.at(1)[1]+facePoints.at(2)[1])/3;
+        float z = (facePoints.at(0)[2]+facePoints.at(1)[2]+facePoints.at(2)[2])/3;
+
+        //MyMesh::Point PM = mesh.point(mesh.vertex_handle(vem->idx()));
+        if((x*eq_plane[0]+y*eq_plane[1]+z*eq_plane[2]+eq_plane[3]) >= 0.0)
+        {
+            /*for(MyMesh::VertexFaceIter vf = mesh.vf_begin(*vem);vf.is_valid();vf ++)
+            {
+                mesh.delete_face(mesh.face_handle(vf->idx()),false);
+            }*/
+
+            /*for(MyMesh::FaceEdgeIter fe = mesh.fe_begin(*f);fe->is_valid();fe++)
+            {
+
+                mesh.delete_edge(*fe,false);
+            }*/
+
+            cpy.delete_face(*f,true);
+
+            /*for(MyMesh::FaceVertexIter fv = mesh.fv_begin(*f);fv->is_valid();fv++)
+            {
+                mesh.delete_vertex(*fv,false);
+            }*/
+        }
+
+
+
+    }
+    cpy.garbage_collection();
+    //eq plan à utiliser pour obtimiser
+    /*for(MyMesh::VertexIter vem = mesh.vertices_begin(); vem != mesh.vertices_end(); vem++)
+    {
+        MyMesh::Point PM = mesh.point(mesh.vertex_handle(vem->idx()));
+        if((PM[0]*eq_plane[0]+PM[1]*eq_plane[1]+PM[2]*eq_plane[2]+eq_plane[3]) >= 0.0)
+        {
+
+            mesh.delete_vertex(*vem);
+            mesh.delete_vertex(mesh.vertex_handle(vem->idx()));
+            mesh.delete_isolated_vertices();
+
+
+            mesh.set_color(mesh.vertex_handle(vem->idx()), MyMesh::Color(70, 255, 60));
+            mesh.data(mesh.vertex_handle(vem->idx())).thickness = 2;
+
+            MyMesh::VertexHandle vh = cpy.add_vertex(PM);
+            cpy.set_color(cpy.vertex_handle(vh.idx()), MyMesh::Color(0, 0, 255));
+            cpy.data(cpy.vertex_handle(vh.idx())).thickness = 2;
+        }
+
+
+
+    }*/
+    /*mesh.clean();
     for(MyMesh::VertexIter ve = frag1.vertices_begin(); ve != frag1.vertices_end(); ve++)
     {
         MyMesh::VertexHandle vh = mesh.add_vertex(frag1.point(frag1.vertex_handle(ve->idx())));
@@ -554,7 +695,7 @@ void MainWindow::on_pushButton_couper_clicked()
             uneNouvelleFace.clear();
         }
     }*/
-
-
-    displayMesh(&mesh);
+    //showBorder(&cpy);
+    //resetAllColorsAndThickness(&mesh);
+    displayMesh(&cpy);
 }

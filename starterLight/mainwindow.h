@@ -44,6 +44,7 @@ public:
     float * equation_plane(MyMesh::Point P1
                         , MyMesh::Point P2
                         , MyMesh::Point P3);
+    void showBorder(MyMesh* _mesh) ;
 private slots:
     void on_pushButton_chargement_clicked();
 
