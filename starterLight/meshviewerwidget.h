@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QGLWidget>
 #include "QMouseEvent"
+#include <QMainWindow>
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 
 #ifdef __APPLE__
@@ -68,6 +69,7 @@ public:
 
     // variables de gestion de la vue et de la trackball
     OpenMesh::Vec3f  center_;
+    OpenMesh::Vec3f  user_position;
     float            radius_;
 
     GLdouble    projection_matrix_[16], modelview_matrix_[16];
@@ -76,9 +78,11 @@ public:
     OpenMesh::Vec3f  last_point_3D_;
     bool             last_point_ok_;
 
-    OpenMesh::Vec3f  user_position;
+    //coordonnées des points pour la decoupe
     OpenMesh::Vec3f  first_point_to_cut3D;
     OpenMesh::Vec3f  last_point_to_cut3D;
+
+    QWidget* parent;
 protected:
 
     // Qt mouse events
@@ -86,6 +90,9 @@ protected:
     virtual void mouseReleaseEvent( QMouseEvent* );
     virtual void mouseMoveEvent( QMouseEvent* );
     virtual void wheelEvent( QWheelEvent* );
+signals:
+    void sig_changePoint(OpenMesh::Vec3f, OpenMesh::Vec3f);
+
 };
 
 #endif // MESHVIEWERWIDGET_H

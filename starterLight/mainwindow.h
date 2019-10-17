@@ -5,6 +5,8 @@
 #include <QMainWindow>
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
+#include <QDesktopServices>
+#include <QProcess>
 
 namespace Ui {
 class MainWindow;
@@ -44,7 +46,10 @@ public:
     float * equation_plane(MyMesh::Point P1
                         , MyMesh::Point P2
                         , MyMesh::Point P3);
-    void showBorder(MyMesh* _mesh) ;
+    void showBorder(MyMesh* _mesh,float * eq_plane) ;
+    //void changeValuePointCut(OpenMesh::Vec3f first, OpenMesh::Vec3f last);
+public slots:
+    void changeValuePointCut(OpenMesh::Vec3f first, OpenMesh::Vec3f last);
 private slots:
     void on_pushButton_chargement_clicked();
 
