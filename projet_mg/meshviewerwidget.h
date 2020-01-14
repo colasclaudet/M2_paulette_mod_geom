@@ -7,10 +7,7 @@
 #include "QMouseEvent"
 #include <QMainWindow>
 #include <OpenMesh/Core/Geometry/VectorT.hh>
-#include <glm/vec3.hpp> // glm::vec3
-#include <glm/vec4.hpp> // glm::vec4
-#include <glm/mat4x4.hpp> // glm::mat4
-#include <glm/gtc/matrix_transform.hpp>
+
 
 #ifdef __APPLE__
     #include <gl.h>

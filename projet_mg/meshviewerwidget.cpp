@@ -403,8 +403,6 @@ void MeshViewerWidget::mouseMoveEvent( QMouseEvent* _event )
             qDebug() << newPoint2D.rx() << newPoint2D.ry();
             qDebug() << newPoint3D[0] << newPoint3D[1] << newPoint3D[2];
             qDebug() << "-----------------------------------------------";
-
-
         }
     }*/
     last_point_2D_ = newPoint2D;
@@ -470,7 +468,6 @@ void MeshViewerWidget::mousePressEvent( QMouseEvent* _event )
                 (1-cos(this->angle_h))*(this->axis_*first_point_to_cut3D)*this->axis_;*/
         //LAST VERSION
         /*first_point_to_cut3D = first_point_to_cut3D*cos(this->angle_h)+ this->axis_h*(this->axis_h*first_point_to_cut3D) * (1-cos(this->angle_h))+(first_point_to_cut3D*this->axis_h)*sin(this->angle_h);
-
         first_point_to_cut3D = first_point_to_cut3D*cos(this->angle_v)+ this->axis_v*(this->axis_v*first_point_to_cut3D) * (1-cos(this->angle_v))+(first_point_to_cut3D*this->axis_v)*sin(this->angle_v);
         first_point_to_cut3D = first_point_to_cut3D*cos(this->angle_p)+ this->axis_p*(this->axis_p*first_point_to_cut3D) * (1-cos(this->angle_p))+(first_point_to_cut3D*this->axis_p)*sin(this->angle_p);
         //END
@@ -483,6 +480,7 @@ void MeshViewerWidget::mousePressEvent( QMouseEvent* _event )
         //glRotated(this->angle_h,first_point_to_cut3D[0],first_point_to_cut3D[1],first_point_to_cut3D[2]);
         //first_point_to_cut3D = OpenMesh::Vec3f(first_point_to_cut3D[0]*cos(this->angle_h),first_point_to_cut3D[1]*sin(this->angle_h),first_point_to_cut3D[2]) ;
         qDebug() << first_point_to_cut3D[0] << first_point_to_cut3D[1] << first_point_to_cut3D[2];
+        emit sig_changePoint(first_point_to_cut3D,last_point_to_cut3D);
 
     }
 }
@@ -551,11 +549,9 @@ void MeshViewerWidget::mouseReleaseEvent( QMouseEvent* _event  )
     /*last_point_to_cut3D = last_point_to_cut3D*cos(this->angle_h)+
             this->axis_h*(this->axis_h*last_point_to_cut3D)*
             (1-cos(this->angle_h))+(last_point_to_cut3D*this->axis_h)*sin(this->angle_h);
-
     last_point_to_cut3D = last_point_to_cut3D*cos(this->angle_v)+
             this->axis_v*(this->axis_v*last_point_to_cut3D)*
             (1-cos(this->angle_v))+(last_point_to_cut3D*this->axis_v)*sin(this->angle_v);
-
     last_point_to_cut3D = last_point_to_cut3D*cos(this->angle_p)+
             this->axis_p*(this->axis_p*last_point_to_cut3D)*
             (1-cos(this->angle_p))+(last_point_to_cut3D*this->axis_p)*sin(this->angle_p);*/
@@ -574,12 +570,10 @@ void MeshViewerWidget::mouseReleaseEvent( QMouseEvent* _event  )
     temp[0]= this->Rx[0][0]*this->center_cut3D[0] + this->Rx[0][1]*this->center_cut3D[1] + this->Rx[0][2]*this->center_cut3D[2];
     temp[1]= this->Rx[1][0]*this->center_cut3D[0] + this->Rx[1][1]*this->center_cut3D[1] + this->Rx[1][2]*this->center_cut3D[2];
     temp[2]= this->Rx[2][0]*this->center_cut3D[0] + this->Rx[2][1]*this->center_cut3D[1] + this->Rx[2][2]*this->center_cut3D[2];
-
     center_cut3D = temp;
     temp[0]= this->Ry[0][0]*this->center_cut3D[0] + this->Ry[0][1]*this->center_cut3D[1] + this->Ry[0][2]*this->center_cut3D[2];
     temp[1]= this->Ry[1][0]*this->center_cut3D[0] + this->Ry[1][1]*this->center_cut3D[1] + this->Ry[1][2]*this->center_cut3D[2];
     temp[2]= this->Ry[2][0]*this->center_cut3D[0] + this->Ry[2][1]*this->center_cut3D[1] + this->Ry[2][2]*this->center_cut3D[2];
-
     center_cut3D = temp;
     */
     qDebug() << last_point_to_cut3D[0] << last_point_to_cut3D[1] << last_point_to_cut3D[2];
@@ -587,7 +581,7 @@ void MeshViewerWidget::mouseReleaseEvent( QMouseEvent* _event  )
 
     last_point_ok_ = false;
 
-
+    emit sig_changePoint(first_point_to_cut3D,last_point_to_cut3D);
 
 }
 

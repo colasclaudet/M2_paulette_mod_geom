@@ -1,5 +1,5 @@
 #include "triangle.h"
-
+//contructeur
 Triangle::Triangle(MyMesh::Point v1, MyMesh::Point v2, MyMesh::Point v3)
 {
     this->point1 = v1;
@@ -7,12 +7,14 @@ Triangle::Triangle(MyMesh::Point v1, MyMesh::Point v2, MyMesh::Point v3)
     this->point3 = v3;
 
 }
+//On vérifie si un point appartient au triangle
 bool Triangle::containsVertex(MyMesh::Point v)
 {
     // return p1 == v || p2 == v || p3 == v;
     return almost_equal(this->point1, v) || almost_equal(this->point2, v) || almost_equal(this->point3, v);
 }
 
+//retourne la normale au triangle
 MyMesh::Point Triangle::getNorm()
 {
     MyMesh::Point vectAB = point2 - point1;
@@ -27,11 +29,13 @@ MyMesh::Point Triangle::getNorm()
     return n;
 }
 
+//retourne le veteur directeur entre 2 points
 MyMesh::Point Triangle::getVect(MyMesh::Point p1, MyMesh::Point p2)
 {
     return p2-p1;
 }
 
+//retourne la distance entre 2 points
 double Triangle::dist2(MyMesh::Point v1, MyMesh::Point v2)
 {
     const double dx = v1[0] - v2[0];
@@ -40,6 +44,7 @@ double Triangle::dist2(MyMesh::Point v1, MyMesh::Point v2)
     return dx * dx + dy * dy + dz*dz;
 }
 
+//retourne le centre de gravité du triangle
 MyMesh::Point Triangle::return_gravity_center()
 {
     float x = (this->point1[0]+this->point2[0]+this->point3[0])/3;
@@ -48,6 +53,7 @@ MyMesh::Point Triangle::return_gravity_center()
     return MyMesh::Point(x,y,z);
 }
 
+//retourne l'équation de plan du triangle
 float * Triangle::equation_plane(MyMesh::Point P1
                     , MyMesh::Point P2
                     , MyMesh::Point P3)
@@ -73,7 +79,12 @@ float * Triangle::equation_plane(MyMesh::Point P1
     return eq_plane;
 }
 
-
+/*
+ * on cherche à vérifier si un point appartient à la sphère englobante du triangle
+ * Pour cela on simplifie les calculs en se servant simplement du centre de gravité
+ * du triangle pour former une pyramide dans la direction de la normale au triangle
+ * principal et ensuite vérifier si le point est contenu dans cette pyramide
+*/
 bool Triangle::circumCircleContains3D(MyMesh::Point v)
 {
     const double ab = this->getPoint1().norm();
