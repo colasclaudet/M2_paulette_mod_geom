@@ -1196,14 +1196,17 @@ void MainWindow::createSeeds(){
         //else qDebug() << " is out :" << point[0] << point[1] << point[2];
     }
 
-    divide();
+    //divide(); //division irregulière
+    regular_divide(15); //division régulière
     qDebug()<<"Draw frag : ";
 
     //probleme de conversion reference
     QVector<MyMesh*> cubes_tmp;
+    list_meshes_to_save.clear();
     for(int i = 0; i < cubes.size();i++){
         resetAllColorsAndThickness(&cubes[i]);
         cubes_tmp.push_back(&cubes[i]);
+        list_meshes_to_save.push_back(cubes[i]);
     }
     //cubes_tmp.push_back(&mesh);
     displayMeshes(cubes_tmp);
@@ -1252,6 +1255,40 @@ void MainWindow::divide()
         MyMesh::VertexHandle sommets[8];
         if(p2[0]<p1[0])
         {
+            /*QVector<MyMesh::Point> pts;
+            MyMesh::Point point1(p2[0], p2[1],  p1[2]);
+            MyMesh::Point point2(p1[0], p2[1],  p1[2]);
+            MyMesh::Point point3(p1[0], p2[1],  p1[2]);
+            MyMesh::Point point4(p2[0],  p1[1],  p1[2]);
+            MyMesh::Point point5(p2[0], p2[1], p2[2]);
+            MyMesh::Point point6(p1[0], p2[1], p2[2]);
+            MyMesh::Point point7(p1[0],  p1[1], p2[2]);
+            MyMesh::Point point8(p2[0],  p1[1], p2[2]);
+
+            pts.push_back(point1);pts.push_back(point2);pts.push_back(point3);
+            pts.push_back(point4);pts.push_back(point5);
+            pts.push_back(point6);pts.push_back(point7);pts.push_back(point8);
+            double dist_point = 0;
+            for(int m = 0; m<pts.size();m++)
+            {
+                for (int k=0;k<pts.size();k++)
+                {
+
+                    if(m!=k &&
+                            (pts.at(m)[0] == pts.at(k)[0] || pts.at(m)[1] == pts.at(k)[1] || pts.at(m)[2] == pts.at(k)[2])
+                            )
+                    {
+                        double dist_temp = sqrt(pow(pts.at(k)[0] - pts.at(m)[0],2)+pow(pts.at(k)[1] - pts.at(m)[1],2)+pow(pts.at(k)[2] - pts.at(m)[2],2));
+                        if(dist_point < dist_temp)
+                        {
+                            dist_point = dist_temp;
+
+                        }
+                    }
+                }
+            }*/
+            //p1 = MyMesh::Point(dist_point,dist_point,dist_point);
+
             sommets[0] = cube.add_vertex(MyMesh::Point(p2[0], p2[1],  p1[2]));
             sommets[1] = cube.add_vertex(MyMesh::Point( p1[0], p2[1],  p1[2]));
             sommets[2] = cube.add_vertex(MyMesh::Point( p1[0],  p1[1],  p1[2]));
@@ -1349,7 +1386,7 @@ void MainWindow::divide()
         //delete seed
         qDebug()<<"NB_ITER"<<nbiter;
     }
-    QVector<MyMesh> cpy = cubes;
+    /*QVector<MyMesh> cpy = cubes;
     for(int i = 0; i<cpy.size();i++)
     {
         double distance = 10000000000.0;
@@ -1375,9 +1412,114 @@ void MainWindow::divide()
             }
         }
         qDebug()<<i<<" with "<<cubeselect;
-
-    }
+    }*/
     qDebug() << "after for vertices cubes" << cubes.last().n_vertices();
     qDebug() << "after for vertices cube" << cube.n_vertices();
+
+}
+
+void MainWindow::regular_divide(int divisor)
+{
+    double dist = 100000;
+    MyMesh::Point smallest(1000000,100000,100000);
+    for(MyMesh::VertexIter vi = mesh.vertices_begin();vi != mesh.vertices_end();vi++)
+    {
+        MyMesh::Point p1 = this->mesh.point(*vi);
+        for (MyMesh::VertexIter vp = mesh.vertices_begin();vp != mesh.vertices_end();vp++)
+        {
+            MyMesh::Point p2 = this->mesh.point(*vp);
+            double dist_temp = sqrt(pow(p2[0] - p1[0],2)+pow(p2[1] - p1[1],2)+pow(p2[2] - p1[2],2));
+            if(dist_temp<dist && *vp != *vi)
+            {
+                dist = dist_temp;
+            }
+        }
+        if(mesh.point(*vi)<smallest)
+        {
+            smallest = mesh.point(*vi);
+        }
+    }
+    double new_size = dist/divisor;
+    qDebug()<<"New cubes size : "<<new_size;
+    MyMesh::Point p1(smallest[0],smallest[1],smallest[2]);
+    MyMesh::Point p2(smallest[0] + new_size,smallest[1] + new_size,smallest[2] + new_size);
+
+    for(int x=0;x<divisor;x++)
+    {
+        for(int y=0;y<divisor;y++)
+        {
+            for(int z=0;z<divisor;z++)
+            {
+                MyMesh::VertexHandle sommets[8];
+                sommets[0] = cube.add_vertex(MyMesh::Point(p2[0], p2[1],  p1[2]));
+                sommets[1] = cube.add_vertex(MyMesh::Point( p1[0], p2[1],  p1[2]));
+                sommets[2] = cube.add_vertex(MyMesh::Point( p1[0],  p1[1],  p1[2]));
+                sommets[3] = cube.add_vertex(MyMesh::Point(p2[0],  p1[1],  p1[2]));
+                sommets[4] = cube.add_vertex(MyMesh::Point(p2[0], p2[1], p2[2]));
+                sommets[5] = cube.add_vertex(MyMesh::Point( p1[0], p2[1], p2[2]));
+                sommets[6] = cube.add_vertex(MyMesh::Point( p1[0],  p1[1], p2[2]));
+                sommets[7] = cube.add_vertex(MyMesh::Point(p2[0],  p1[1], p2[2]));
+
+                std::vector<MyMesh::VertexHandle> uneNouvelleFace;
+
+                uneNouvelleFace.clear();
+                uneNouvelleFace.push_back(sommets[0]);
+                uneNouvelleFace.push_back(sommets[1]);
+                uneNouvelleFace.push_back(sommets[2]);
+                uneNouvelleFace.push_back(sommets[3]);
+                cube.add_face(uneNouvelleFace);
+
+                uneNouvelleFace.clear();
+                uneNouvelleFace.push_back(sommets[7]);
+                uneNouvelleFace.push_back(sommets[6]);
+                uneNouvelleFace.push_back(sommets[5]);
+                uneNouvelleFace.push_back(sommets[4]);
+                cube.add_face(uneNouvelleFace);
+
+                uneNouvelleFace.clear();
+                uneNouvelleFace.push_back(sommets[1]);
+                uneNouvelleFace.push_back(sommets[0]);
+                uneNouvelleFace.push_back(sommets[4]);
+                uneNouvelleFace.push_back(sommets[5]);
+                cube.add_face(uneNouvelleFace);
+
+                uneNouvelleFace.clear();
+                uneNouvelleFace.push_back(sommets[2]);
+                uneNouvelleFace.push_back(sommets[1]);
+                uneNouvelleFace.push_back(sommets[5]);
+                uneNouvelleFace.push_back(sommets[6]);
+                cube.add_face(uneNouvelleFace);
+
+                uneNouvelleFace.clear();
+                uneNouvelleFace.push_back(sommets[3]);
+                uneNouvelleFace.push_back(sommets[2]);
+                uneNouvelleFace.push_back(sommets[6]);
+                uneNouvelleFace.push_back(sommets[7]);
+                cube.add_face(uneNouvelleFace);
+
+                uneNouvelleFace.clear();
+                uneNouvelleFace.push_back(sommets[0]);
+                uneNouvelleFace.push_back(sommets[3]);
+                uneNouvelleFace.push_back(sommets[7]);
+                uneNouvelleFace.push_back(sommets[4]);
+                cube.add_face(uneNouvelleFace);
+
+                cubes.push_back(cube);
+                p2[2] = p2[2] + new_size;
+                p1[2] = p1[2] + new_size;
+                cube.clean();
+            }
+            p2[1] = p2[1] + new_size;
+            p1[1] = p1[1] + new_size;
+
+            p2[2] = smallest[2] + new_size;
+            p1[2] = smallest[2];
+        }
+        p2[0] = p2[0] + new_size;
+        p1[0] = p1[0] + new_size;
+
+        p2[1] = smallest[1]+new_size;
+        p1[1] = smallest[1];
+    }
 
 }

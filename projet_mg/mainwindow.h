@@ -60,6 +60,7 @@ public:
     void createSeeds();
     std::vector<double> crossProduct(MyMesh::Point p1, MyMesh::Point p2);
     void divide();
+    void regular_divide(int divisor);
 private slots:
     /* * MENU  * */
     void importFile();
@@ -100,7 +101,7 @@ private:
     MyMesh frag3; //mesh comprenant seulement les points d'intersections
 
     std::vector<MyMesh::Point> seeds_impact;
-    unsigned nb_seeds = 100;
+    unsigned nb_seeds = 1000;
 };
 
 #endif // MAINWINDOW_H
